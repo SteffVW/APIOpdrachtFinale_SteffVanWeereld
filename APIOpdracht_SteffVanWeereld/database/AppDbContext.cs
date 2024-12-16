@@ -30,7 +30,6 @@ namespace APIOpdracht_SteffVanWeereld.database
                  new Boss { Id = 9, Name = "Alomone", MaxHit = 5, CombatLevel = 13, ExamineText = "Leader of the Hazeel Cult.", RegionId = 4, QuestId = 9, Image = "https://oldschool.runescape.wiki/w/Alomone#/media/File:Alomone.png" }
              );
 
-            // Seed data for Regions
             modelBuilder.Entity<Region>().HasData(
                 new Region { Id = 1, Capital = "Falador", Name = "Asgarnia", Image = "https://oldschool.runescape.wiki/w/Asgarnia#/media/File:Asgarnia_map.png" },
                 new Region { Id = 2, Capital = "Rellekka", Name = "Fremmennik", Image = "https://oldschool.runescape.wiki/w/Fremennik_Province#/media/File:Fremennik_Province_map.png" },
@@ -41,7 +40,6 @@ namespace APIOpdracht_SteffVanWeereld.database
                 new Region { Id = 7, Capital = "Darkmeyer", Name = "Morytania", Image = "https://oldschool.runescape.wiki/w/Morytania#/media/File:Morytania_map.png" }
             );
 
-            // Seed data for Quests
             modelBuilder.Entity<Quest>().HasData(
                 new Quest { Id = 1, Name = "Dragonslayer 2", Lenght = "Very Long", Difficulty = "Grandmaster", Series = "Dragonkin", QuestPoints = 5, BossId = 1, RegionId = 2, Image = "https://oldschool.runescape.wiki/images/Dragon_Slayer_II_reward_scroll.png?55a92" },
                 new Quest { Id = 2, Name = "Song of the elves", Lenght = "Very Long", Difficulty = "Grandmaster", Series = "Elfs", QuestPoints = 4, BossId = 2, RegionId = 6, Image = "https://oldschool.runescape.wiki/images/Song_of_the_Elves_reward_scroll.png?85a1f" },
@@ -58,7 +56,6 @@ namespace APIOpdracht_SteffVanWeereld.database
                 .Ignore(r => r.BossIds)
                 .Ignore(r => r.QuestIds);
 
-            // Configure other relationships as before
             modelBuilder.Entity<Boss>()
                 .HasOne(b => b.Quest)
                 .WithOne(q => q.Boss)

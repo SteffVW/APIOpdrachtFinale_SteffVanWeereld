@@ -1,0 +1,6 @@
+@APIOpdracht_SteffVanWeereld_HostAddress = http://localhost:5047
+
+GET {{APIOpdracht_SteffVanWeereld_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

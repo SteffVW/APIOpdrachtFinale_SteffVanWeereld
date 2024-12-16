@@ -11,7 +11,9 @@ namespace APIOpdracht_SteffVanWeereld.Models
         public string Name { get; set; } = string.Empty;
         [MaxLength(100, ErrorMessage = "Capital name cannot exceed 100 characters.")]
         public string Capital { get; set; } = string.Empty;
+        [JsonIgnore]
         public int[]? BossIds { get; set; }
+        [JsonIgnore]
         public int[]? QuestIds { get; set; }
         [JsonIgnore]
         public string Image { get; set; } = string.Empty;

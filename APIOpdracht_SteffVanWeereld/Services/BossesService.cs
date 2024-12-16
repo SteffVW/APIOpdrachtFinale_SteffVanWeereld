@@ -7,12 +7,6 @@ namespace APIOpdracht_SteffVanWeereld.Services
 {
     public class BossesService: IBossesService
     {
-        private readonly AppDbContext _context;
-        public BossesService(AppDbContext context)
-        {
-            _context = context;
-        }
-
         private static readonly List<Boss> Bosses = new List<Boss>
         {
             new Boss {Id = 1, Name = "Vorkath", MaxHit = 80, CombatLevel = 732, ExamineText = "This won't be fun.", RegionId = 2, QuestId = 1, Image = "https://oldschool.runescape.wiki/w/Vorkath#/media/File:Vorkath.png"},
@@ -25,17 +19,6 @@ namespace APIOpdracht_SteffVanWeereld.Services
             new Boss {Id = 8, Name = "Slug Prince", MaxHit = 6, CombatLevel = 62, ExamineText = "A child of aquatic evil.", RegionId = 1, QuestId = 8, Image = "https://oldschool.runescape.wiki/w/Slug_Prince#/media/File:Slug_Prince.png"},
             new Boss {Id = 9, Name = "Alomone", MaxHit = 5, CombatLevel = 13, ExamineText = "Leader of the Hazeel Cult.", RegionId = 4, QuestId = 9, Image = "https://oldschool.runescape.wiki/w/Alomone#/media/File:Alomone.png"},
         };
-
-        public List<Boss> GetAllBossesDb()
-        {
-            return _context.Bosses.Include(b => b.Region).Include(b => b.Quest).ToList();
-        }
-
-        public void AddBoss(Boss newBoss)
-        {
-            _context.Bosses.Add(newBoss);
-            _context.SaveChanges();
-        }
 
         public Task<List<Boss>> GetAllBosses()
         {

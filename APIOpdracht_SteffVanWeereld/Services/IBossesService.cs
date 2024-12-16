@@ -12,7 +12,5 @@ namespace APIOpdracht_SteffVanWeereld.Services
         Task CreateBoss(Boss boss);
         Task UpdateBoss(Boss boss);
         Task DeleteBoss(int id);
-        void AddBoss(Boss newBoss);
-        List<Boss> GetAllBossesDb();
     }
 }

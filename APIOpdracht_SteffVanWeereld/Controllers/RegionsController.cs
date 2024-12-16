@@ -1,6 +1,8 @@
-﻿using APIOpdracht_SteffVanWeereld.Models;
+﻿using APIOpdracht_SteffVanWeereld.database;
+using APIOpdracht_SteffVanWeereld.Models;
 using APIOpdracht_SteffVanWeereld.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,115 +12,119 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
     [ApiController]
     public class RegionsController : ControllerBase
     {
-        private readonly IRegionService _regionService;
+        private readonly AppDbContext _context;
 
-        public RegionsController(IRegionService regionService)
+        public RegionsController(AppDbContext context)
         {
-            _regionService = regionService;
+            _context = context;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Region>>> GetAll()
         {
-            var allRegions = await _regionService.GetAllRegions();
+            var allRegions = await _context.Regions.ToListAsync();
+            if (allRegions is null)
+            {
+                return NotFound("Not found");
+            }
             return Ok(allRegions);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Region>> GetById(int id)
         {
-            var regionToGet = await _regionService.GetRegionById(id);
+            var regionToGet = await _context.Regions.FindAsync(id);
 
             if (regionToGet != null)
             {
                 return Ok(regionToGet);
             }
 
-            return NotFound(regionToGet);
+            return NotFound("Not found");
         }
         [HttpGet("{id}/image")]
         public async Task<ActionResult<Region>> GetImage(int id)
         {
-            var region = await _regionService.GetRegionById(id);
+            var region = await _context.Regions.FindAsync(id);
 
             if (region != null)
             {
-                return Ok(new {
+                return Ok(new
+                {
                     name = region.Name,
-                    image = region.Image 
+                    image = region.Image
                 });
             }
 
-            return NotFound(region);
+            return NotFound("Not found");
         }
         [HttpGet("capital/{capitalName}")]
         public async Task<ActionResult<Region>> GetCapital(string capitalName)
         {
-            var region = await _regionService.GetByCapital(capitalName);
+            var region = await _context.Regions.FirstOrDefaultAsync(r => r.Capital == capitalName);
 
-            if (region != null)
+            if (region == null)
             {
-                return Ok(region);
+                return NotFound("Not found");
             }
 
-            return NotFound(region);
+            return Ok(region);
         }
         [HttpGet("boss/{bossId}")]
         public async Task<ActionResult<Region>> GetByBoss(int bossId)
         {
-            var region = await _regionService.GetRegionByBoss(bossId);
+            var region = await _context.Regions.Include(r => r.Bosses).FirstOrDefaultAsync(r => r.Bosses.Any(b => b.Id == bossId));
 
-            if (region != null)
+            if (region == null)
             {
-                return Ok(region);
+                return NotFound("Not found");
             }
 
-            return NotFound(region);
+            return Ok(region);
         }
         [HttpGet("quest/{questId}")]
         public async Task<ActionResult<Region>> GetByQuest(int questId)
         {
-            var region = await _regionService.GetByQuest(questId);
+            var region = await _context.Regions.Include(r => r.Quests).FirstOrDefaultAsync(r => r.Quests.Any(q => q.Id == questId));
 
-            if (region != null)
+            if (region == null)
             {
-                return Ok(region);
+                return NotFound("Not found");
             }
 
-            return NotFound(region);
+            return Ok(region);
         }
         [HttpPost]
         public async Task<ActionResult<Region>> PostRegion(Region region)
         {
-            await _regionService.CreateRegion(region);
+            _context.Regions.Add(region);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { Id = region.Id }, region);
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateRegion(int id, Region updatedRegion)
+        public async Task<ActionResult> UpdateRegion(int id, Region region)
         {
-            if (id != updatedRegion.Id)
+            if (id != region.Id)
             {
                 return BadRequest("Region ID mismatch.");
             }
 
-            var existingRegion = await _regionService.GetRegionById(id);
-            if (existingRegion == null)
-            {
-                return NotFound();
-            }
+            _context.Entry(region).State = EntityState.Modified;
 
-            await _regionService.UpdateRegion(updatedRegion);
+            await _context.SaveChangesAsync();
+
             return NoContent();
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteRegion(int id)
         {
-            var existingRegion = await _regionService.GetRegionById(id);
+            var existingRegion = await _context.Regions.FindAsync(id);
             if (existingRegion == null)
             {
-                return NotFound();
+                return NotFound("Not found");
             }
 
-            await _regionService.DeleteRegion(id);
+            _context.Remove(existingRegion);
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 

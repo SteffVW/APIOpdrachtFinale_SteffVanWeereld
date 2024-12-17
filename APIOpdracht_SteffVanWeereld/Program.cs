@@ -18,17 +18,20 @@ namespace APIOpdracht_SteffVanWeereld
                 var conn = builder.Configuration.GetSection("Databases:Mysql:ConnectionString").Value;
                 builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseMySql(conn, ServerVersion.AutoDetect(conn)));
+                builder.Services.AddScoped<IBossesService, BossDbService>();
+                builder.Services.AddScoped<IQuestsService, QuestDbService>();
+                builder.Services.AddScoped<IRegionService, RegionDbService>();
             }
             else if (activeDb == "InMemory")
             {
                 builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseInMemoryDatabase("InMemoryDb"));
+                builder.Services.AddScoped<IBossesService, BossesService>();
+                builder.Services.AddScoped<IQuestsService, QuestsService>();
+                builder.Services.AddScoped<IRegionService, RegionService>();
             }
 
-            // Add services to the container.
-            builder.Services.AddScoped<IBossesService, BossesService>();
-            builder.Services.AddScoped<IQuestsService, QuestsService>();
-            builder.Services.AddScoped<IRegionService, RegionService>();
+            // Add services to the container.  
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

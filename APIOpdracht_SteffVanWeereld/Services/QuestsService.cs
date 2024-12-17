@@ -26,16 +26,6 @@ namespace APIOpdracht_SteffVanWeereld.Services
             new Quest {Id = 9, Name = "Hazeel cult", Lenght = "Very Short", Difficulty = "Novice", Series = "Mahjarrat", QuestPoints = 1, BossId = 9, RegionId = 4, Image= "https://oldschool.runescape.wiki/w/File:Hazeel_Cult_reward_scroll.png"},
         };
 
-        public List<Quest> GetAllQuestsDb()
-        {
-            return _context.Quests.Include(q => q.Region).Include(q => q.Boss).ToList();
-        }
-        public void AddQuest(Quest newQuest)
-        {
-            _context.Quests.Add(newQuest);
-            _context.SaveChanges();
-        }
-
         public Task<Quest?> GetQuestByBoss(int bossId)
         {
             var questByBoss = Quests.FirstOrDefault(x => x.BossId == bossId);

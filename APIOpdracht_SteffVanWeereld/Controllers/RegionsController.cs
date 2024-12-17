@@ -12,17 +12,17 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
     [ApiController]
     public class RegionsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IRegionService _regionService;
 
-        public RegionsController(AppDbContext context)
+        public RegionsController(IRegionService regionService)
         {
-            _context = context;
+            _regionService = regionService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Region>>> GetAll()
         {
-            var allRegions = await _context.Regions.ToListAsync();
+            var allRegions = await _regionService.GetAllRegions();
             if (allRegions is null)
             {
                 return NotFound("Not found");
@@ -32,7 +32,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Region>> GetById(int id)
         {
-            var regionToGet = await _context.Regions.FindAsync(id);
+            var regionToGet = await _regionService.GetRegionById(id);
 
             if (regionToGet != null)
             {
@@ -44,7 +44,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("{id}/image")]
         public async Task<ActionResult<Region>> GetImage(int id)
         {
-            var region = await _context.Regions.FindAsync(id);
+            var region = await _regionService.GetRegionById(id);
 
             if (region != null)
             {
@@ -60,7 +60,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("capital/{capitalName}")]
         public async Task<ActionResult<Region>> GetCapital(string capitalName)
         {
-            var region = await _context.Regions.FirstOrDefaultAsync(r => r.Capital == capitalName);
+            var region = await _regionService.GetByCapital(capitalName);
 
             if (region == null)
             {
@@ -72,7 +72,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("boss/{bossId}")]
         public async Task<ActionResult<Region>> GetByBoss(int bossId)
         {
-            var region = await _context.Regions.Include(r => r.Bosses).FirstOrDefaultAsync(r => r.Bosses.Any(b => b.Id == bossId));
+            var region = await _regionService.GetRegionByBoss(bossId);
 
             if (region == null)
             {
@@ -84,7 +84,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("quest/{questId}")]
         public async Task<ActionResult<Region>> GetByQuest(int questId)
         {
-            var region = await _context.Regions.Include(r => r.Quests).FirstOrDefaultAsync(r => r.Quests.Any(q => q.Id == questId));
+            var region = await _regionService.GetByQuest(questId);
 
             if (region == null)
             {
@@ -96,8 +96,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpPost]
         public async Task<ActionResult<Region>> PostRegion(Region region)
         {
-            _context.Regions.Add(region);
-            await _context.SaveChangesAsync();
+            await _regionService.CreateRegion(region);
             return CreatedAtAction(nameof(GetById), new { Id = region.Id }, region);
         }
         [HttpPut("{id}")]
@@ -105,26 +104,22 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         {
             if (id != region.Id)
             {
-                return BadRequest("Region ID mismatch.");
+                return BadRequest("Regionb ID mismatch.");
             }
 
-            _context.Entry(region).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
+            await _regionService.UpdateRegion(region);
             return NoContent();
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteRegion(int id)
         {
-            var existingRegion = await _context.Regions.FindAsync(id);
-            if (existingRegion == null)
+            var existingQuest = await _regionService.GetRegionById(id);
+            if (existingQuest == null)
             {
                 return NotFound("Not found");
             }
 
-            _context.Remove(existingRegion);
-            await _context.SaveChangesAsync();
+            await _regionService.DeleteRegion(id);
             return NoContent();
         }
 

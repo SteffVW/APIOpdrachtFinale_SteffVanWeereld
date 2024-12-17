@@ -12,17 +12,17 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
     [ApiController]
     public class QuestsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IQuestsService _questService;
 
-        public QuestsController(AppDbContext context)
+        public QuestsController(IQuestsService questsService)
         {
-            _context = context;
+            _questService = questsService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Quest>>> GetAll()
         {
-            var allQuests = await _context.Quests.ToListAsync();
+            var allQuests = await _questService.GetAllQuests();
             if (allQuests is null)
             {
                 return NotFound("Not found");
@@ -32,7 +32,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Quest>> GetById(int id)
         {
-            var questToGet = await _context.Quests.FindAsync(id);
+            var questToGet = await _questService.GetQuestById(id);
 
             if (questToGet != null)
             {
@@ -44,7 +44,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("{id}/image")]
         public async Task<ActionResult<Quest>> GetImage(int id)
         {
-            var quest = await _context.Quests.FindAsync(id);
+            var quest = await _questService.GetQuestById(id);
 
             if (quest != null)
             {
@@ -60,7 +60,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("difficulty/{difficulty}")]
         public async Task<ActionResult<Quest>> GetByDifficulty(string difficulty)
         {
-            var quests = await _context.Quests.Where(q => q.Difficulty == difficulty).ToListAsync();
+            var quests = await _questService.GetQuestsByDifficulty(difficulty);
 
             if (quests == null)
             {
@@ -72,7 +72,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("region/{regionId}")]
         public async Task<ActionResult<Quest>> GetByRegion(int regionId)
         {
-            var quests = await _context.Quests.Where(q => q.RegionId == regionId).Include(q => q.Region).ToListAsync();
+            var quests = await _questService.GetQuestsByRegion(regionId);
 
             if (quests == null)
             {
@@ -84,7 +84,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("boss/{bossId}")]
         public async Task<ActionResult<Quest>> GetByBoss(int bossId)
         {
-            var quest = await _context.Quests.Include(q => q.Boss).FirstOrDefaultAsync(q => q.BossId == bossId);
+            var quest = await _questService.GetQuestByBoss(bossId);
 
             if (quest == null)
             {
@@ -96,8 +96,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpPost]
         public async Task<ActionResult<Quest?>> PostQuest(Quest quest)
         {
-            _context.Quests.Add(quest);
-            await _context.SaveChangesAsync();
+            await _questService.CreateQuest(quest);
             return CreatedAtAction(nameof(GetById), new { Id = quest.Id }, quest);
         }
         [HttpPut("{id}")]
@@ -108,23 +107,19 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
                 return BadRequest("Quest ID mismatch.");
             }
 
-            _context.Entry(quest).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
+            await _questService.UpdateQuest(quest);
             return NoContent();
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteQuest(int id)
         {
-            var existingQuest = await _context.Quests.FindAsync(id);
+            var existingQuest = await _questService.GetQuestById(id);
             if (existingQuest == null)
             {
                 return NotFound("Not found");
             }
 
-            _context.Remove(existingQuest);
-            await _context.SaveChangesAsync();
+            await _questService.DeleteQuest(id);
             return NoContent();
         }
     }

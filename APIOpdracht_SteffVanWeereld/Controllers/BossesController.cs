@@ -14,27 +14,28 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
     [ApiController]
     public class BossesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IBossesService _bossesService;
 
-        public BossesController(AppDbContext context)
+        public BossesController(IBossesService bossesService)
         {
-            _context = context;
+            _bossesService = bossesService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Boss>>> GetAll()
         {
-            var allBosses = await _context.Bosses.ToListAsync();
+            var allBosses = await _bossesService.GetAllBosses();
             if(allBosses is null)
             {
                 return NotFound("Not found");
             }
+
             return Ok(allBosses);
         }
         [HttpGet("{id}")]
         public async Task<ActionResult<Boss>> GetById(int id)
         {
-            var bossToGet = await _context.Bosses.FindAsync(id);
+            var bossToGet = await _bossesService.GetBossById(id);
 
             if (bossToGet != null)
             {
@@ -46,7 +47,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("{id}/image")]
         public async Task<ActionResult<Boss>> GetImage(int id)
         {
-            var boss = await _context.Bosses.FindAsync(id);
+            var boss = await _bossesService.GetBossById(id);
 
             if (boss != null)
             {
@@ -61,7 +62,7 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("region/{regionId}")]
         public async Task<ActionResult<List<Boss>>> GetByRegion(int regionId)
         {
-            var bossesInRegion = await _context.Bosses.Where(x => x.RegionId == regionId).ToListAsync();
+            var bossesInRegion = await _bossesService.GetBossesByRegion(regionId);
 
             if (bossesInRegion != null)
             {
@@ -73,30 +74,31 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<List<Boss>>> SearchByName([FromQuery] string name)
         {
-            var matchingBosses = await _context.Bosses.Where(x => x.Name.Contains(name)).ToListAsync();
+            var matchingBosses = await _bossesService.SearchBossesByName(name);
 
             if (matchingBosses != null)
             {
                 return Ok(matchingBosses);
             }
+
             return NotFound("Not found");
         }
         [HttpGet("maxHit/{count}")]
         public async Task<ActionResult<List<Boss>>> GetTopBosses(int count)
         {
-            var topBosses = await _context.Bosses.OrderByDescending(x => x.MaxHit).Take(count).ToListAsync();
+            var topBosses = await _bossesService.GetTopBossesByMaxHit(count);
 
             if (topBosses.Any())
             {
                 return Ok(topBosses);
             }
+
             return NotFound("No found");
         }
         [HttpPost]
         public async Task<ActionResult<Boss?>> PostBoss(Boss boss)
         {
-            _context.Bosses.Add(boss);
-            await _context.SaveChangesAsync();
+            await _bossesService.CreateBoss(boss);
             return CreatedAtAction(nameof(GetById), new { Id = boss.Id }, boss);
         }
 
@@ -107,25 +109,21 @@ namespace APIOpdracht_SteffVanWeereld.Controllers
             {
                 return BadRequest("Boss ID mismatch.");
             }
-
-            _context.Entry(boss).State = EntityState.Modified;
-
-            await _context.SaveChangesAsync();
-
+            
+            await _bossesService.UpdateBoss(boss);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBoss(int id)
         {
-            var existingBoss = await _context.Bosses.FindAsync(id);
+            var existingBoss = await _bossesService.GetBossById(id);
             if (existingBoss == null)
             {
                 return NotFound("Not found");
             }
 
-            _context.Remove(existingBoss);
-            await _context.SaveChangesAsync();
+            await _bossesService.DeleteBoss(id);
             return NoContent();
         }
     }

@@ -12,7 +12,5 @@ namespace APIOpdracht_SteffVanWeereld.Services
         Task CreateQuest(Quest quest);
         Task UpdateQuest(Quest quest);
         Task DeleteQuest(int id);
-        void AddQuest(Quest newQuest);
-        List<Quest> GetAllQuestsDb();
     }
 }

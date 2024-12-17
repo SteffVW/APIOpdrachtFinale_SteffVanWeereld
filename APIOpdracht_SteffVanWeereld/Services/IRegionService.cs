@@ -12,6 +12,5 @@ namespace APIOpdracht_SteffVanWeereld.Services
         Task CreateRegion(Region region);
         Task UpdateRegion(Region region);
         Task DeleteRegion(int id);
-        void AddRegion(Region region);
     }
 }

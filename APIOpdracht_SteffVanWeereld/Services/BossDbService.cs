@@ -15,27 +15,27 @@ namespace APIOpdracht_SteffVanWeereld.Services
 
         public async Task<List<Boss>> GetAllBosses()
         {
-            return await _context.Bosses.ToListAsync();
+            return await _context.Bosses.Include(boss => boss.Quest).Include(b => b.Region).ToListAsync();
         }
 
         public async Task<Boss?> GetBossById(int id)
         {
-            return await _context.Bosses.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Bosses.Include(boss => boss.Quest).Include(b => b.Region).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<List<Boss>> GetBossesByRegion(int regionId)
         {
-            return await _context.Bosses.Where(boss => boss.RegionId == regionId).ToListAsync();
+            return await _context.Bosses.Include(boss => boss.Quest).Include(b => b.Region).Where(boss => boss.RegionId == regionId).ToListAsync();
         }
 
         public async Task<List<Boss>> GetTopBossesByMaxHit(int count)
         {
-            return await _context.Bosses.OrderByDescending(boss => boss.MaxHit).Take(count).ToListAsync();
+            return await _context.Bosses.Include(boss => boss.Quest).Include(b => b.Region).OrderByDescending(boss => boss.MaxHit).Take(count).ToListAsync();
         }
 
         public async Task<Boss?> SearchBossesByName(string name)
         {
-            return await _context.Bosses.FirstOrDefaultAsync(boss => boss.Name.ToLower() == name.ToLower());
+            return await _context.Bosses.Include(boss => boss.Quest).Include(b => b.Region).FirstOrDefaultAsync(boss => boss.Name.ToLower() == name.ToLower());
         }
 
         public async Task CreateBoss(Boss boss)

@@ -20,9 +20,7 @@ namespace APIOpdracht_SteffVanWeereld.Models
         public string ExamineText { get; set; } = string.Empty;
         [JsonIgnore]
         public string Image { get; set; } = string.Empty;
-        [JsonIgnore]
         public Region? Region { get; set; }
-        [JsonIgnore]
         public Quest? Quest { get; set; }
     }
 }
